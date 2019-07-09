@@ -1,350 +1,172 @@
-# Learning Goals 
+In
+[PA05](https://hegden.github.io/ece264/homeworks/PA05.pdf)
+you wrote several routines to sort Student records that you read in from a
+file. Your job in that assignment was to write input/output methods to create
+an array of Student records, and write comparison functions to compare
+Students by different fields in their records. However, you used the C
+standard library's built-in `qsort` function to perform the actual sort. In
+this assignment, you will write your own sort function.
 
-You will learn
-* Read unsorted data from files
-* Write sorted data to another file
-* Calculate the amount of memory needed to store the data
-* Create structure to store data 
-* Allocate memory to store the data
-* Understand the difference between \* and \* \* in argument
-* Use the C built-in qsort function to sort the data
-* Use valgrind to check invalid memory access and memory leak
+Note: This assignment builds on PA05, replacing `qsort` with your own sort,
+but otherwise leaving the rest of the assignment the same. If you were unable
+to complete PA05, or are concerned that your implementation of PA05 is
+incorrect, you have two options:
 
-# Background
+1. You can use the *pre-built* object files for `student.o` and `pa06.o` 
+   You can then link these files in your Makefile instead of compiling your 
+   own versions of `student.c` and `pa06.c`. If you take this option *you will 
+   have to develop your code on the ecegrid machines*.
+2. On July 15th (after the late submission deadline for PA05 has passed),
+   we will release `student.c` and `pa06.c`, which will be correct, working
+   implementations of the code you needed to write for PA05.
+   
+Learning Goals
+==============
+You will learn:
 
-## File IO 
+* Recursion principles
+* "Divide-and-conquer" recursion
+* Merge sort
 
-There are two types of files: text and binary. A text file can be read
-and modified by using a text editor. A binary file cannot. The two
-types have advantages and disadvantages. This assignment asks you to
-write code that can read from and write to text files.  In this
-assignment, each line of the input file has two pieces of information:
-a unique number (ID) and a name (first name followed by last name).
+Background
+==========
 
-Before reading from or writing to a file, a program must call `fopen`
-to open the file with the proper mode (read, write, read and write,
-append).  It is possible that `fopen` fails and your program must
-check that.  If `fopen` fails and your program does not check, your
-program may enter an unknown state and fail in unexpected ways later.
+Recursion
+---------
 
-Your program will use `fscanf` to read integers and strings.  In this
-assignment, you can assume each person's name contains at most 79
-characters (excluding '\0').  Please understand the difference between
-`fscanf` and `fgets`.  They stop reading for different reasons.
-
-After reading the input data, sort the data by either the IDs or the
-names by calling C's `qsort` function.  After sorting the data, write
-the sorted result to another file.  Your program can use `fprintf` to
-write the results.
-
-## Calculate the amount of memory needed
-
-Your program needs to calculate number of lines in the input file and
-allocate enough memory for the data. You can assume that the input
-file has no empty line and use the number of `\n` to calculate the
-number of lines.
-
-## Create structure to store IDs and names
-
-Structures allow programs to put related information together.  This assignment 
-asks you to create a structure with two attributes: 
-
-* an integer 
-* a string.
-
-You can assume that the string (either first name or last name) is no
-longer than 80 characters.  However, you should NOT write
-
-`char name[80];`
-
-Instead, you should create a symbol that defines this maximum length
-
-`\#define NAME_LENGTH 80`
-
-and use `NAME_LENGTH` wherever you need to refer to this maximum length.
-
-`char name[NAME_LENGTH];`
-
-Why? If, for any reason, you decide to change the maximum length,
-there is only one place to change.  When you write programs, you
-should expect the programs to change and make changes easy.  If you do
-not define a symbol, then you may need to change multiple locations.
-The more changes are needed, the more mistakes you will make.
-
-This symbol is defined in `constant.h` for you to use. It is possible that the
-grading program will modify the value (for example, define `NAME_LENGTH`
-as 160 or 57). If you write 80 anywhere in the program, your program
-may fail.  If you use 80 directly anywhere in the program without
-creating a symbol, you may *lose up to 20 points* in this assignment.
-
-## Allocate Memory for the Students
-
-You can assume that the input file has no empty line and the last line
-ends with and new line character (`\n`). Thus, you can count the
-number of lines to determine the number of students in the file.
-Your program should allocate an array of the structure type.
-
-To allocate memory, you need to use a pointer. Suppose you want to
-allocate an array of `type` and the array has numelem elements.
+In a superficial sense, recursion is what happens whenever a function `f` calls itself, as in the "standard" factorial example:
 
 ```
-type * ptr;
-ptr = malloc(sizeof(ptr) * numelem);
-```
-
-Your program must release allocated memory before it terminates.  
-
-```
-free (ptr);
-```
-
-If your program allocates memory without releasing it, the program has
-memory leak.  Memory leak is a serious problem in programs.  Some
-students believe memory leak is harmless but they are wrong. To ensure
-that you treat memory leak seriously, you will **lose 1 point** for
-every bye of leaked memory.  In other words, if your program leaks 100
-or more bytes, you will **receive zero**.
-
-Please be aware that calling free does not  set the released memory to zero
-(you should not care about that). Calling free also does not set `ptr`
-to NULL.  In order words, you should expect the following 
-
-```
-free(ptr); // release the memory, does not set ptr to NULL
-if (ptr != NULL)
-{
-    // true
-}
-```
-However,  you should **not** use the value of ptr any more. Using 
-the value of ptr will cause segmentation fault.
-
-## Difference between \* and \* \* in argument
-
-Consider the following example
-
-```
-int x = 5;
-```
-
-If we want to write a function that doubles the value of x and x is an
-argument, it is necessary to pass the address of x:
-
-```
-void f1(int * ptr)
-{
-	int t = * ptr;
-	t = t * 2;
-	*ptr = t;
-}
-f1(& x);
-```
-
-If we want to modify the value of a pointer, it is necessary to pass
-the address of the pointer. 
-
-```
-int * ptr;
-f2(& ptr);
-```
-
-In this case, f2's argument is
-
-```
-void f2(int * * addptr) // the address of a pointer
-```
-
-As an example, if a function allocates memory, the address
-of the allocated memory must be passed back to the caller:
-
-```
-int * ptr;
-f2(& ptr);
-
-void f2(int * * addptr)
-{
-	int * ptr = malloc(...);
-	* addptr = ptr;
-}
-```
-Adding space between the two \* makes no difference:
-
-```
-void f2(int * * addptr)
-```
-is exactly the same as
-
-
-```
-void f2(int ** addptr)
-```
-
-## Use qsort to sort the students
-
-C has a built-in function for quick sort. This function sorts an
-array.  To use qsort, you need to provide four arguments:
-
-* the address of the first element
-* the number of elements
-* the size of each element
-* the function for comparing elements
-
-The comparison function has three steps
-
-* cast the type from `void *` to the proper type (it is a pointer)
-* retrieve the values from the pointer
-* compare the values and return negative, zero, or positive numbers
-
-You can find two examples here:
-
-Comparing two elements in an array of integers
-
-https://github.com/yunghsianglu/IntermediateCProgramming/blob/3eee24660f99a641cc2a445733bd154595ff1915/Ch9/compareint.c
-
-Comparing two elements in an array of string
-
-https://github.com/yunghsianglu/IntermediateCProgramming/blob/3eee24660f99a641cc2a445733bd154595ff1915/Ch9/comparestr.c
-
-Please use the numeric difference to compare two IDs.
-Please use `strcmp` to compare two names;
-
-## Use valgrind to check memory errors
-
-Many types of mistakes may occur when writing a program like PA05.
-Valgrind is a tool that can check memory errors, such as uninitialized
-variables, invalid indexes, and memory leaks.
-
-To use a valgrind to check a program `foo` for memory errors, run:
-
-`> valgrind --tool=memcheck --leak-check=full foo`
-
-The output will tell you how much memory you leaked (if any), and which calls to `malloc` were the ones that did not get freed.
-
-[This page](http://cs.ecs.baylor.edu/~donahoo/tools/valgrind/messages.html) gives details of the various types of errors you might have.
-
-You must use valgrind to check your program before submission.  
-You will
-
-* lose 1 point for every byte of leaked memory
-* lose all points if your program terminates abnormally (e.g., segmentation
-  fault)
-* lose 1 point for every error detected by valgrind even though the program
-  continues
-
-Please be aware that if the program has one mistake, it is likely that
-same mistake is triggered multiple times and valgrind reports the same
-error multiple times. When this occurs, you will lose one point for
-every detected error.  
-
-## How to write correct programs, faster?
-
-For most ECE 264 students, this assignment may be a significant
-challenge.  You have to pay attention to many details.  What you
-should do is to **plan before coding**.  You need to think about how
-to write the program and how to test your program.
-
-Do **not** assume your program will work.  Some students write a lot
-of code without testing any piece. When they put everything together,
-the programs do not work and the students do not know what is wrong.
-Instead, you should **assume your programs have many mistakes** and
-develop a plan to ensure that every piece is correct before putting
-them together.  You should have a plan before writing the first line
-of code.  If you start coding without a plan, you will spend much more
-time debugging.
-
-Your plan should guide the order of implementation. Should you
-implement reading the file first, writing the file first, or sorting
-the data first?  Focus on one piece, fully debug it, before working on
-the next.  If you start writing every function simultaneously, it is
-possible that none works and you receive no point.
-
-It is very likely that you need to write additional code for testing
-but the testing code is **not** graded.  If you expect that every line
-of code will be used for grading, it is likely that you do not fully
-test your program and you will lose points.
-
-There is no definite answer how much additional testing code you need
-to write.  A rule of thumb is that for every line you need to submit,
-you need to write three to five additional lines for testing.
-
-You will likely need to write "driver" and "stub" for testing.
-Imagine that function A needs function B.  If function A is not ready,
-how can you test function B?  You need to write another function that
-may provide some meaningful data to test B. In this case, you are
-writing a driver.  Similarly, if B does not work yet, how can you test
-A?  You will write a simplified version for B so that you can test A.
-This is a stub.  
-
-You should fully understand the advantage of using Makefile for
-testing.  One common problem is that students do not take advantage of
-Makefile for testing.  You should read Makefile from PA01-04 carefully
-and think about how to run multiple tests at once by using Makefile.
-
-## Plan, Plan, Plan
-
-The best advice to finish this assignment quickly is to plan before
-coding.  You will save a lot of time if you have a plan.  Many
-students started coding without any plan. They failed. You will not be
-the first exception.
-
-## Validate your answers
-
-The test case given to you is too large to check by eyes. You should
-have a plan to check whether your output is correct by using computer
-programs.  There are at least two ways: (1) you can write a function
-to check and (2) you can use the sort program in Linux to check.
-
-For (1), you can do something like. Suppose numelm is the number of
-elements and you want the array values to be sorted in the ascending
-order.
-
-```
-for (int ind = 0; ind < (numelm -1); ind ++) // remember -1
-{
-	if (values[ind] >= values[ind +1])
-	{
-              // out of order
-        }
+int factorial(int n) {
+  if (n == 0) return 1;
+  else return n * factorial(n - 1);
 }
 ```
 
-For (2), you can use sort command in Linux. Suppose infile is the name
-of an input file.
+It is better to think of recursion as a *technique* for solving problems. Many problems can be thought of using the following pattern:
 
-`> sort infile`
+1. Break the problem up into "smaller" version(s) of the same problem.
+2. Solve the smaller problem(s) by calling the same function (we call this the 
+   *inductive case*)
+3. Use the solutions to the smaller problem(s) to solve the original problem.
 
-sorts the file, line by line.
+This seems like a process that doesn't end: to solve a big problem, we break
+it up into smaller versions of the problem -- but then we have to solve the
+smaller problem, which isn't any different! The key is that you can *repeat*
+this process, solving the smaller problems in the same way. At each step, you
+get smaller and smaller problems. Eventually, the problem is small enough that
+getting the answer is trivial. We call this the *base case*.
 
-You can use `-k` to specify which column to sort.
+We can see this in the `factorial` example: rather than computing `factorial`
+of `n`, we realize that `n!` is just `n * (n-1)!` (Step 1: break the problem
+up into a smaller version of the same problem) -- so we can call `factorial(n - 1)`
+(Step 2: solve the smaller problem by calling the same function). We can 
+then multiply this by `n` to find `factorial(n)` (Step 3: use the solution of
+the smaller problem to solve the original problem). We also see that the *base
+case* is simple: we already know what `0!` is, so there is no need to "break
+it up" into a smaller problem -- we can just return 1.
 
-# What do you need to do?
+(Note: you could also write factorial with a loop, and the loop version would
+probably be faster, so you might wonder why we need recursion. The code you
+will write in this assignment is a case where recursion is basically the only
+way to write it.)
 
-You will have to modify the following files:
+One way to think about how to correctly write a recursive function is to think
+*inductively*: We can *assume* that the recursive function already works, but
+only if the function is called on a smaller problem than what we're solving.
+We can then write the recursive function assuming that it already works. The
+only thing we have to make sure we do is write correct base cases -- we need
+to make sure that for the smallest versions of the function, we compute the
+correct answer. (This sounds circular, but it works for the same reason that
+inductive proofs work)
 
-* `student.h`: This file defines a structure named `Student`
-* `student.c`: This file defines several functions (declared in `students.h`)
-  to:
-  1. Read a list of `Student`s from a specified input file and store them in
-  an array (you will need to determine how big an array to allocate!)
-  2. Write an array of `Student`s to a specified output file.
-  3. Sort arrays of students by ID, first name or last name.
-* `pa05.c`: The main function for pa05. This function should:
-  1. Read students from the input file into an array of `Student`s (you will
-  need to determine how big an array to allocate!)
-  2. Sort the students by IDs
-  3. Write the results to an output file
-  4. Sort the students by first name
-  5. Write the results to a second output file
-  6. Sort the students by last name
-  7. Write the results to a third output file
+Divide-and-conquer Recursion
+----------------------------
+
+A very common pattern for recursive problems is *divide-and-conquer*
+recursion: to solve a problem on *n* pieces of data (e.g., an array of length
+*n*), we break the input up into two pieces, each with *n/2* pieces of data
+(e.g., two arrays, each with half the elements), call the recursive function
+on these smaller pieces, then write some code to combine the results from
+those two functions into the final answer. The base case for this style of
+function is what to do when you have only 1 element.
+
+Consider a toy example where we want to sum up all the values in an input
+array with n elements. Here, if we divide the array in two and sum those two
+sub-arrays, we can add the results to get the sum of the whole array. The base
+case is that the sum of an array with just one element is the value of that
+element:
+
+```
+int sum(int * arr, int nels) {
+  if (nels = 1) return arr[0];
   
-  See the `pa05.c` template file for more details.
-  * `Makefile` You will have to write a Makefile that has four targets:
-    1. `all`: This will create an executable called pa05
-    2. `test`: This will run three input files (see the template Makefile for details) and then use the `diff` command in Linux to compare your programs output with the program's output.
-    3. `memory`: This will call valgrind on your program to check for memory errors.
-    4. `clean`: Remove all `.o` and executable files
+  int sum1 = sum(arr, nels/2);
+  int sum2 = sum(&arr[nels/2], (nels + 1)/2);
+  
+  return sum1 + sum2
+}
+```
 
-  Don't forget to pass in -D flags for `TEST_READ`, `TEST_WRITE`,
-  `TEST_SORTID`, `TEST_SORTFIRSTNAME`, `TEST_SORTLASTNAME` so that the code
-  you write in `student.c` is included. 
+(The `(nels + 1)/2` stuff is just a fancy way of dealing with arrays that have
+an odd number of elements, where sum2 works over a slightly larger array than
+sum1. In integer division, `nels/2` is like computing `floor(n/2)`, and `(nels + 1)/2` is like computing `ceiling(n/2)`. More generally, to compute
+`ceiling(a/b)` you can do integer division: `(a + b - 1)/b`.)
+
+Merge Sort
+----------
+
+Your task in this programming assignment is to write a *merge sort*. Merge
+sort is an application of divide and conquer recursion to sort an array. The
+heart of merge sort is the `merge` operation, which combines two *already
+sorted* arrays to produce a new sorted array. To merge two sorted arrays,
+imagine you have two cursors, which start at the beginnings of the two arrays.
+Look at the two elements pointed to by the cursor: add whichever element is
+smaller to the output array, then move that cursor forward by 1 element. (If
+one of the cursors is already at the end of its array, the other cursor always
+"wins.")
+
+This `merge` operation gives us a way of combining the solutions of two
+smaller problems to solve the larger problem of sorting an array:
+
+1. Divide the array into two pieces
+2. Sort the two pieces by recursively calling the same function
+3. Use `merge` to merge the two resulting sorted pieces
+
+So what should the base case be? How do we make sure we don't keep sorting
+smaller and smaller arrays? Note something simple: an array with only one
+element is already sorted!
+
+What do you need to do?
+=======================
+
+Your job is to write a merge sort function, which you will call `msort`. To test `msort`, you will modify your PA05 submission to call `msort` instead of `qsort`. The signature of `msort` is:
+
+`void msort(Student * base, int nel, int (*compar)(const void *, const void *))`
+
+Where `compar` is a pointer to a comparison function (you can/should reuse your comparison functions from PA05).
+
+As explained above, the heart of merge sort is a `merge` function, which you will also have to write. The signature of `merge` is:
+
+`Student * merge(Student * base1, int nel1, Student * base2, int nel2, int (*compar)(const void *, const void *))`
+
+Where `merge` returns a *newly allocated* array of `Student`s that is the result of merging the arrays `base1` and `base2`.
+
+Files you need to modify
+------------------------
+
+You will need to only modify and submit one file: `merge.c`, providing new
+definitions of `merge` and `msort`. To test your code, you will either need
+your own code from PA05 (don't forget to `#include "msort.h"` in your
+`student.c`) or you will need to use one of the options described at the
+beginning of this README.
+
+Grading and partial credit
+--------------------------
+
+We will grade PA06 using the same inputs (and expected outputs) as PA05. Do
+not remove the `#ifndef` directives around `merge` and `msort`. We will test
+each of them separately for partial credit. (Note that `#ifndef` works the opposite way to `#ifdef` -- if a particular flag is *not* defined, then the code in the `#ifndef` will be included.)
+
+
+*We will deduct 20 points for all Git submission related errors starting from PA06.*

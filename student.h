@@ -11,12 +11,9 @@
 //  char- lastname[NAME_LENGTH]
 typedef struct
 {
-
-
-
-
-
-
+  int ID;
+  char firstname[NAME_LENGTH] ;
+  char lastname[NAME_LENGTH] ;
 } Student;
 
 // functions to be implemented
@@ -26,6 +23,5 @@ void StudentSortbyID(Student * stu, int numelem);
 void StudentSortbyFirstName(Student * stu, int numelem);
 void StudentSortbyLastName(Student * stu, int numelem);
 
-// function already impelemented for you
 void StudentPrint(Student * stu, int num);
 #endif
