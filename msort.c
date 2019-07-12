@@ -22,25 +22,30 @@ void msort(Student * base, int nel, int (*compar)(const void *, const void *)) {
 	//sort the array *starting* from that element.
 		
 	//1. Find the midpoint of the array
+	int mid;
 	mid = (nel-1) / 2;
 	
 	//2a. Sort the first half of the array (remember to adjust the # elements)
-	msort( base, mid, (*compar)(const void *, const void *) ); // how do i call with this function pointer
+	Student * base1 = base;
+	Student * base2 = (base + mid + 1);
+	
+	msort( base, mid, compar ); // how do i call with this function pointer
 	
 	//2b. Sort the second half of the array. Pass in the address of the 
 	//beginning of the second half of the array (remember to use the right # of 
 	//elements)
-	msort( (base + mid + 1), nel-1, (*compar)(const void *, const void *) ); 
+	msort( (base + mid + 1), nel-mid, compar ); 
 	
 	//3a. Merge the two arrays (use merge)
-	Student * perfectArray;
-	perfectArray = merge( base1, nel1, base2, nel2, (*compar)(const void *, const void *) );
+	Student * sortedArray;
+	int nel1 = mid; 
+	int nel2 = nel-mid;
+	sortedArray = merge( base1, nel1, base2, nel2, compar );
 	
 	//3b. Copy the merged array over top of the original array (use copy)
 	//Don't forget to free the array you no longer need!
-	copy(base, perfectArray, nel);
-	free(mergedArray); // how do I free this ??
-	free(perfectArray);		
+	copy(base, sortedArray, nel);
+	free(sortedArray);		
 	return;
 }
 #endif
@@ -60,7 +65,7 @@ Student * merge(Student * base1, int nel1, Student * base2, int nel2, int (*comp
 	while ( i < nel1 && j < nel2)
 	{
 	  int value = 0;
-	  value = compar( base1[i], base2[j] ) // is this how to use a function pointer
+	  value = compar( &base1[i], &base2[j] ); // is this how to use a function pointer
 	  
 	   if ( value < 0 )// if value < 0, that means: base1[i] < base2[j]
 	   {

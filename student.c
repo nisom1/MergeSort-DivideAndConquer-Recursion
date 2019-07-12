@@ -55,7 +55,7 @@ bool StudentRead(char * filename, Student * * stu, int * numelem)
   // Do not use rewind because it does not report whether it fails
 
   fclose(fptr);
-  ftpr = fopen(filename, "r");
+  fptr = fopen(filename, "r");
 
   // allocate memory for the data
   (*stu) = malloc(sizeof(Student) * numLines);
@@ -86,7 +86,7 @@ bool StudentRead(char * filename, Student * * stu, int * numelem)
 bool StudentWrite(char * filename, Student * stu, int numelem)
 {
   // open the file to read
-  FILE * outptr = fopen(filename, "w")
+  FILE * outptr = fopen(filename, "w");
 
   // if fopen fails, return false
   // do not use fclose since fopen already fails
@@ -94,6 +94,7 @@ bool StudentWrite(char * filename, Student * stu, int numelem)
     return EXIT_FAILURE;
 
   // write the students to the output file
+  int i;
   for ( i = 0; i < numelem; i++){
    fprintf(outptr,"%d %s %s\n", (stu[i]).ID, (stu[i]).firstname, (stu[i].lastname));
   }
@@ -105,24 +106,52 @@ bool StudentWrite(char * filename, Student * stu, int numelem)
 #endif 
 
 #ifdef TEST_SORTID
-void StudentSortbyID(Student * stu, int numelem)
+int comparefuncint(const void * arg1, const void * arg2) 
 {
+  Student * ptr1 = (Student *) arg1; 
+  Student * ptr2 = (Student *) arg2;  
+  
+  if( (ptr1->ID) < (ptr2->ID) )
+	return -1;
+  else if( (ptr1->ID) == (ptr2->ID) )
+	return 0;
+  else
+	return 1;
+} 
 
-
-}
+ void StudentSortbyID(Student * stu, int numelem)
+ {
+   qsort(stu, numelem, sizeof(Student), comparefuncint );
+ }
 #endif
 
+
 #ifdef TEST_SORTFIRSTNAME
+int cmpstring1(const void *arg1, const void *arg2)
+{
+  Student * ptr1 = (Student *) arg1; 
+  Student * ptr2 = (Student *) arg2; 
+  return strcmp( (*ptr1).firstname, (*ptr2).firstname);
+}
+
 void StudentSortbyFirstName(Student * stu, int numelem)
 {
-
+  qsort(stu, numelem, sizeof(Student), cmpstring1);
 }
 #endif
 
 #ifdef TEST_SORTLASTNAME
+int cmpstring(const void *arg1, const void *arg2)
+{
+  Student * ptr1 = (Student *) arg1; 
+  Student * ptr2 = (Student *) arg2; 
+
+  return strcmp( (*ptr1).lastname, (*ptr2).lastname );
 }
+
 void StudentSortbyLastName(Student * stu, int numelem)
 {
+  qsort(stu, numelem, sizeof(Student), cmpstring);
 
 }
 #endif

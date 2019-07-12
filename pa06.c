@@ -28,7 +28,7 @@ int main(int argc, char * * argv)
     return EXIT_FAILURE;   
  
   // sort the students by IDs
-  StudentSortbyID(arr, numelem)
+  StudentSortbyID(arr, numelem);
 
   // write the result to the output (name is argv[2])
   // return EXIT_FAILURE if writing fails
@@ -50,7 +50,7 @@ int main(int argc, char * * argv)
 
   // write the result to the output (name is argv[4])
   // return EXIT_FAILURE if writing fails
-  value = StudentWrite(argv[4], arr, numelem)
+  value = StudentWrite(argv[4], arr, numelem);
    if (value == false)
     return EXIT_FAILURE;   
 

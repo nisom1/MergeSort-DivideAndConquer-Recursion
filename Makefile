@@ -5,7 +5,7 @@ GCC = gcc #$(CFLAGS) $(COVFLAGS) $(PROFFLAG)
 
 # "make" will create an executable called pa05
 pa06: pa06.o student.o msort.o
- 	$(GCC) $(CFLAGS) $(DFLAGS) student.o pa06.o -o pa06
+	$(GCC) $(CFLAGS) $(DFLAGS) pa06.o student.o msort.o -o pa06
 
 pa06.o: pa06.c student.h constant.h msort.h
 	$(GCC) $(CFLAGS) $(DFLAGS) -c pa06.c
@@ -13,7 +13,7 @@ pa06.o: pa06.c student.h constant.h msort.h
 student.o: student.c student.h constant.h msort.h	
 	$(GCC) $(CFLAGS) $(DFLAGS) -c student.c
 
-msort.o: msort.c student.h sort.h
+msort.o: msort.c student.h msort.h
 	$(GCC) $(CFLAGS) $(DFLAGS) -c msort.c
 
 
@@ -22,7 +22,15 @@ test: pa06
 	./pa06 inputs/testinput1 id1 first1 last1
 	./pa06 inputs/testinput2 id2 first2 last2
 	./pa06 inputs/testinput3 id3 first3 last3
-
+	diff expected/id1 id1
+	diff expected/first1 first1
+	diff expected/last1 last1
+	diff expected/id2 id2
+	diff expected/first2 first2
+	diff expected/last2 last2
+	diff expected/id3 id3
+	diff expected/first3 first3
+	diff expected/last3 last3
 # "make memory" calls valgrind to check memory errors
 memory: pa06
 	$(VALS) ./pa06 inputs/testinput1 id1 first1 last1
