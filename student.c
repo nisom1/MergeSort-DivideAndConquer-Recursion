@@ -121,7 +121,7 @@ int comparefuncint(const void * arg1, const void * arg2)
 
  void StudentSortbyID(Student * stu, int numelem)
  {
-   qsort(stu, numelem, sizeof(Student), comparefuncint );
+   msort(stu, numelem, comparefuncint );
  }
 #endif
 
@@ -136,7 +136,7 @@ int cmpstring1(const void *arg1, const void *arg2)
 
 void StudentSortbyFirstName(Student * stu, int numelem)
 {
-  qsort(stu, numelem, sizeof(Student), cmpstring1);
+  msort(stu, numelem, cmpstring1);
 }
 #endif
 
@@ -151,7 +151,7 @@ int cmpstring(const void *arg1, const void *arg2)
 
 void StudentSortbyLastName(Student * stu, int numelem)
 {
-  qsort(stu, numelem, sizeof(Student), cmpstring);
+  msort(stu, numelem, cmpstring);
 
 }
 #endif

@@ -9,7 +9,6 @@ void msort(Student * base, int nel, int (*compar)(const void *, const void *)) {
 	//so just return.
 	if (nel <= 1)
 		return;
-	//FILL IN
 	
 	//Inductive case: split the array in two, sort the two pieces with msort,
 	//merge the	sorted pieces
@@ -23,23 +22,23 @@ void msort(Student * base, int nel, int (*compar)(const void *, const void *)) {
 		
 	//1. Find the midpoint of the array
 	int mid;
-	mid = (nel-1) / 2;
+	mid = (nel+1) / 2;
 	
 	//2a. Sort the first half of the array (remember to adjust the # elements)
 	Student * base1 = base;
-	Student * base2 = (base + mid + 1);
+	Student * base2 = &base[mid];
 	
-	msort( base, mid, compar ); // how do i call with this function pointer
+	msort( base1, nel/2, compar ); // how do i call with this function pointer
 	
 	//2b. Sort the second half of the array. Pass in the address of the 
 	//beginning of the second half of the array (remember to use the right # of 
 	//elements)
-	msort( (base + mid + 1), nel-mid, compar ); 
+	msort( base2, (nel + 1)/2 , compar ); 
 	
 	//3a. Merge the two arrays (use merge)
 	Student * sortedArray;
-	int nel1 = mid; 
-	int nel2 = nel-mid;
+	int nel1 = nel / 2; 
+	int nel2 = nel / 2;
 	sortedArray = merge( base1, nel1, base2, nel2, compar );
 	
 	//3b. Copy the merged array over top of the original array (use copy)
@@ -96,11 +95,9 @@ Student * merge(Student * base1, int nel1, Student * base2, int nel2, int (*comp
 	 j++;
 	 k++;
 	}
-
 	
 	//4. Return the merged array
 	return mergedArray;
-
 }
 
 
