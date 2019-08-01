@@ -1,0 +1,71 @@
+Commit ID tagged for submission: 7cfaf75054baaa01dfe10be473e1baeff4535159
+Submission graded at: 2019-08-01 07:16:41
+
+[*] Cleaning up...
+cp: cannot stat `object_files/*.o': No such file or directory
+make: *** [clean] Error 1
+[*] Compiling student's files
+[*] Passed!
+[*] Running tests(100%), 50% points will be deducted for any valgrind error
+/bin/sh: line 1: 20380 Aborted                 (core dumped) ./pa06-stu inputs/testinput1 id1 first1 last1 > /dev/null
+make: *** [test-stu] Error 134
+[!] There was an error in running the tests!
+[!] Failed
+[*] Verifying output files.
+[*] There are 4 line difference(s) for id1
+[*] There are 4 line difference(s) for first1
+[*] There are 4 line difference(s) for last1
+[!] Could not find output file id2
+[*] There are 35 line difference(s) for first2
+[*] There are 29 line difference(s) for last2
+[!] Could not find output file id3
+[*] There are 182 line difference(s) for first3
+[*] There are 130 line difference(s) for last3
+[*] You passed 0/9 test cases with your solution.
+[*] You have leaked 0 byte(s) of memory.
+[*] Testing valgrind errors reported. (-50% for any error)
+grep -o "ERROR SUMMARY: [0-9]*" log3 | grep -o "[0-9]*"
+[*] You have 21575 error(s) detected by valgrind.
+ 
+[****] Attempting to give partial credit...
+[*] Attempting to compile and run your msort function with instructor's merge and copy functions...(40%)
+/bin/sh: line 1: 20464 Aborted                 (core dumped) ./pa06-msort inputs/testinput1 id1 first1 last1 > /dev/null
+make: *** [test-msort] Error 134
+[!] There was an error in running the tests!
+[!] Failed
+[*] Verifying output files.
+[*] There are 4 line difference(s) for id1
+[*] There are 4 line difference(s) for first1
+[*] There are 4 line difference(s) for last1
+[!] Could not find output file id2
+[*] There are 35 line difference(s) for first2
+[*] There are 29 line difference(s) for last2
+[*] There are 237 line difference(s) for id3
+[*] There are 182 line difference(s) for first3
+[*] There are 130 line difference(s) for last3
+[*] You passed 0/9 test cases with the instructor's merge and copy function.
+[*] You have leaked 0 byte(s) of memory.
+[*] Testing valgrind errors reported. (-50% for any error)
+grep -o "ERROR SUMMARY: [0-9]*" log3 | grep -o "[0-9]*"
+[*] You have 21575 error(s) detected by valgrind.
+ 
+[*] Attempting to compile and run your merge and copy funciton with instructor's msort functions...(60%)
+[*] Verifying output files.
+[*] There are 0 line difference(s) for id1
+[*] There are 0 line difference(s) for first1
+[*] There are 0 line difference(s) for last1
+[*] There are 0 line difference(s) for id2
+[*] There are 0 line difference(s) for first2
+[*] There are 0 line difference(s) for last2
+[*] There are 0 line difference(s) for id3
+[*] There are 0 line difference(s) for first3
+[*] There are 0 line difference(s) for last3
+[*] You passed 9/9 test cases with the instructor's msort function.
+[*] You have leaked 0 byte(s) of memory.
+[*] Testing valgrind errors reported. (-50% for any error)
+grep -o "ERROR SUMMARY: [0-9]*" log3 | grep -o "[0-9]*"
+[*] You have 0 error(s) detected by valgrind.
+ 
+[*]Checking for unreachable code ...
+No unreachable code present
+ 
